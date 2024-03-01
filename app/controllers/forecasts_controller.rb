@@ -60,7 +60,7 @@ class ForecastsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_forecast
-      @forecast = Forecast.find(params[:id])
+      @forecast = Forecast.find_by(zip_code: params[:zip_code])
     end
 
     # Only allow a list of trusted parameters through.
