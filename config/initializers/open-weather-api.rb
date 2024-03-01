@@ -1,6 +1,5 @@
 # config/initializers/open-weather-api.rb
 
-# Note that 'config' is an instance of `OpenWeatherAPI::API` (just name it as you like).
 OpenWeatherAPI.configure do |config|
   # API key
   config.api_key = "108ea82aa7de13fe38587c05f8baab79"
