@@ -1,16 +1,11 @@
 class Forecast < ApplicationRecord
 
-  def stale?(zip_code)
-    forecast = Forecast.find_by(zip_code: zip_code)
-    forecast.nil? || forecast.updated_at < 30.minutes.ago
-  end
-
-  def refresh(zip_code)
+  def self.request_data(zip_code)
     owa = Rails.configuration.open_weather_api
     current = owa.current(zipcode: zip_code)
-    forecast = Forecast.find_by(zip_code: zip_code)
 
-    forecast.update(
+    forecast_hash = {
+      zip_code: zip_code,
       weather: current['weather'][0]['main'],
       temp: current['main']['temp'],
       temp_feels_like: current['main']['feels_like'],
@@ -24,7 +19,16 @@ class Forecast < ApplicationRecord
       city: current['name'],
       coord_lon: current['coord']['lon'],
       coord_lat: current['coord']['lat']
-    )
+    }
+  end
+
+  def stale?(zip_code)
+    forecast = Forecast.find_by(zip_code: zip_code)
+    forecast.updated_at < 30.minutes.ago
+  end
+
+  def refresh(zip_code)
+    forecast = Forecast.find_by(zip_code: zip_code)
+    forecast.update(Forecast.request_data(zip_code))
   end
 end
-

@@ -21,11 +21,19 @@ class ForecastsController < ApplicationController
 
   # POST /forecasts or /forecasts.json
   def create
-    @forecast = Forecast.new(forecast_params)
+    @forecast = Forecast.find_by(zip_code: forecast_params[:zip_code])
+
+    # If the forecast already exists, redirect to the update action
+    # This is required, as the /create action is used for both "new" forecasts and "re-requsting" existing forecasts
+    if !@forecast.nil?
+      redirect_to update
+    end
+
+    @forecast = Forecast.new(Forecast.request_data(forecast_params[:zip_code]))
 
     respond_to do |format|
       if @forecast.save
-        format.html { redirect_to forecast_url(@forecast), notice: "Forecast was successfully created." }
+        format.html { redirect_to forecast_url(@forecast.zip_code), notice: "Forecast was successfully created." }
         format.json { render :show, status: :created, location: @forecast }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -36,6 +44,8 @@ class ForecastsController < ApplicationController
 
   # PATCH/PUT /forecasts/1 or /forecasts/1.json
   def update
+    @forecast.refresh(forecast_params[:zip_code])
+
     respond_to do |format|
       if @forecast.update(forecast_params)
         format.html { redirect_to forecast_url(@forecast), notice: "Forecast was successfully updated." }
