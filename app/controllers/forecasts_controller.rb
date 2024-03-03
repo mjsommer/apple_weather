@@ -15,21 +15,29 @@ class ForecastsController < ApplicationController
     @forecast = Forecast.find_by(zip_code: forecast_params[:zip_code])
 
     if @forecast.nil?
+      # Create, if the forecast does not exist.
       @forecast = Forecast.new(Forecast.request_data(forecast_params[:zip_code]))
 
       respond_to do |format|
         if @forecast.save
-          format.html { redirect_to forecast_url(@forecast.zip_code), notice: "Forecast was successfully created." }
+          format.html { redirect_to forecast_url(@forecast.zip_code)}
         else
           format.html { render :new, status: :unprocessable_entity }
         end
       end
     else
-      respond_to do |format|
-        if @forecast.update(Forecast.request_data(forecast_params[:zip_code]))
-          format.html { redirect_to forecast_url(@forecast.zip_code), notice: "Forecast was successfully updated." }
-        else
-          format.html { render :edit, status: :unprocessable_entity }
+      # Update, if the forecast exists, and is not stale.
+      if @forecast.stale? #(forecast_params[:zip_code])
+        respond_to do |format|
+          if @forecast.update(Forecast.request_data(forecast_params[:zip_code]))
+            format.html { redirect_to forecast_url(@forecast.zip_code)}
+          else
+            format.html { render :edit, status: :unprocessable_entity }
+          end
+        end
+      else
+        respond_to do |format|
+          format.html { redirect_to forecast_url(@forecast.zip_code), notice: "This forecast was pulled from cache." }
         end
       end
     end
