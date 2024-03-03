@@ -26,9 +26,4 @@ class Forecast < ApplicationRecord
     forecast = Forecast.find_by(zip_code: zip_code)
     forecast.updated_at < 30.minutes.ago
   end
-
-  def refresh(zip_code)
-    forecast = Forecast.find_by(zip_code: zip_code)
-    forecast.update(Forecast.request_data(zip_code))
-  end
 end
