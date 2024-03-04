@@ -3,6 +3,9 @@ class ForecastsController < ApplicationController
 
   # GET /forecasts/1 or /forecasts/1.json
   def show
+    if @forecast.stale?
+      @forecast.update(Forecast.request_data(@forecast.zip_code))
+    end
   end
 
   # GET /forecasts/new
@@ -27,7 +30,7 @@ class ForecastsController < ApplicationController
       end
     else
       # Update, if the forecast exists, and is not stale.
-      if @forecast.stale? #(forecast_params[:zip_code])
+      if @forecast.stale?
         respond_to do |format|
           if @forecast.update(Forecast.request_data(forecast_params[:zip_code]))
             format.html { redirect_to forecast_url(@forecast.zip_code)}
