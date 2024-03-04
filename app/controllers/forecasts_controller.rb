@@ -3,9 +3,6 @@ class ForecastsController < ApplicationController
 
   # GET /forecasts/1 or /forecasts/1.json
   def show
-    if @forecast.stale?
-      @forecast.update(Forecast.request_data(@forecast.zip_code))
-    end
   end
 
   # GET /forecasts/new
